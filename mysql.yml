@@ -1,0 +1,29 @@
+---
+- hosts: appserver
+  #sudo: true
+  become: yes
+ # vars:
+  #  package: [ mysql ]
+  tasks:
+  - name: install mysql
+    yum: name={{ item }} state=present
+    with_items:
+       - mysql.i686
+       - mysql-libs.i686
+       - mysql-server.i686
+    notify:
+    - restart mysql
+  - name: Start and Enable mysqld service
+    service: name=mysqld state=restarted enabled=yes
+    handlers:
+     - name: restart mysqld
+       service: name=mysqld state=restarted
+
+#- hosts: appserver
+#  notify:
+#    - restart httpd
+#  - name: Start and Enable httpd service
+#    service: name=httpd state=restarted enabled=yes
+#    handlers:
+#     - name: restart httpd
+#       service: name=httpd state=restarted
