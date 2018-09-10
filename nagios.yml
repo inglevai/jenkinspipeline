@@ -1,0 +1,93 @@
+---
+- hosts: appserver
+  become: yes
+
+  tasks:
+   - name: Nagios - Install Build Dependencies
+     yum: name={{ item }} state=present
+     with_items:
+         - gcc
+         - glibc
+         - glibc-common
+         - gd
+         - gd-devel
+         - make
+         - net-snmp
+         - openssl-devel
+         - xinetd
+         - unzip
+
+   - name: Ensure group "nagcmd" exists
+     group:
+        name: nagcmd
+        state: present
+
+   - name: Add the user 'nagios' with a specific uid and a primary group of 'nagcmd'
+     user:
+         name: nagios
+         comment: nagios
+         groups: nagcmd
+         append: yes
+
+   - name: Install Nagios Core - Download the source code for the latest stable release of Nagios Core
+     get_url:
+        url: https://assets.nagios.com/downloads/nagioscore/releases/nagios-4.1.1.tar.gz
+        dest: /opt/
+
+     unarchive:
+        src: /opt/nagios-4.1.1.tar.gz .
+        command: mv nagios-4.1.1 nagios
+
+   - name: Running ./configure for nagios
+        command: '"{{ item }}" chdir=/opt/nagios'
+        with_items:
+          - ./configure --with-command-group=nagcmd
+
+   - name: Running "make" for nagios
+        command: '"{{ item }}" chdir=/opt/nagios'
+        with_items:
+         - make
+
+   - name: Running "make install" for nagios
+        command: '"{{ item }}" chdir=/opt/nagios'
+        with_items:
+         - make install
+
+   - name: Running "make install-commandmode" for nagios
+        command: '"{{ item }}" chdir=/opt/nagios'
+        with_items:
+         - make install-commandmode
+
+   - name: Running "make install-init" for nagios
+        command: '"{{ item }}" chdir=/opt/nagios'
+        with_items:
+         - make install-init
+
+   - name: Running "make install-config" for nagios
+        command: '"{{ item }}" chdir=/opt/nagios'
+        with_items:
+         - make install-config
+
+   - name: Running "make install-config" for nagios
+        command: '"{{ item }}" chdir=/opt/nagios'
+        with_items:
+         - make install-webconf
+
+
+   - name: add the web server user, apache, to the nagcmd group
+      user:
+         name: apache
+         comment: apache
+         groups: nagcmd
+         append: yes
+
+   - name: Install Nagios Plugins
+       get_url:
+       url: http://nagios-plugins.org/download/nagios-plugins-2.1.1.tar.gz
+       dest: /opt/
+
+     unarchive:
+        src: /opt/nagios-plugins-2.1.1.tar.gz .
+        command: mv nagios-plugins-2.1.1 nagios-plugins
+
+  -
