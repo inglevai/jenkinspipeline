@@ -1,0 +1,9 @@
+---
+- hosts: all
+  tasks:
+  - name: Install mysqld Package
+    yum: name=mysqld state=present
+  #- name: Copy httpd configuration file
+  #  copy: src=/etc/httpd/conf/httpd.conf dest=/etc/httpd/conf/httpd.conf
+  - name: Start and Enable mysqld service
+    service: name=mysqld state=restarted enabled=yes
