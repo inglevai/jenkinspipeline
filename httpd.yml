@@ -7,3 +7,20 @@
   #  copy: src=/etc/httpd/conf/httpd.conf dest=/etc/httpd/conf/httpd.conf
   - name: Start and Enable mysqld service
     service: name=mysqld state=restarted enabled=yes
+
+
+
+---
+- hosts: all
+  become: yes
+  tasks:
+   - name: install apache2 on remote
+     yum: name=httpd state=present
+     notify:
+     - start httpd
+     #handlers:
+     #- name: start httpd
+     #  service: name=httpd state=start
+     - name: restart apache
+       service:
+         name: httpd state=restarted
